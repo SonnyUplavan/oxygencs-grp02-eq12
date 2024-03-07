@@ -1,0 +1,5 @@
+# requirements.txt
+#need to check my versions on my desktop, these modules are not working on my laptop ATM.
+signalrcore==0.0.7
+requests==2.26.0
+psycopg2==2.9.1
