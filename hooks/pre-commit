@@ -1,0 +1,16 @@
+#!/bin/bash
+#Add to .git/hooks
+
+# Run Black to format Python files in src/ and test/
+black src/ test/
+
+# Capture the exit status
+black_exit_status=$?
+
+if [ $black_exit_status -ne 0 ]; then
+  echo "Black encountered an issue. Please review the error message and fix the problem before committing."
+  exit $black_exit_status
+fi
+
+# Run Pylint on Python files in src/ and test/
+pylint --output-format=colorized src/ test/
