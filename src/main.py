@@ -3,6 +3,11 @@ import logging
 import requests
 import json
 import time
+import os
+
+import psycopg2
+from psycopg2 import sql
+from datetime import datetime, timezone
 
 
 class App:
@@ -11,11 +16,11 @@ class App:
         self.TICKS = 10
 
         # To be configured by your team
-        self.HOST = None  # Setup your host here
-        self.TOKEN = None  # Setup your token here
-        self.T_MAX = None  # Setup your max temperature here
-        self.T_MIN = None  # Setup your min temperature here
-        self.DATABASE_URL = None  # Setup your database here
+        self.HOST = os.getenv("HOST_ENV", 'http://159.203.50.162')#"http://159.203.50.162"  # Setup your host here
+        self.TOKEN = os.getenv('HOST_TOKEN', '3f0a57e541e13a3b6549')#"3f0a57e541e13a3b6549"  # Setup your token here
+        self.T_MAX = os.getenv('OXYGEN_T_MAX', 60)#60  # Setup your max temperature here
+        self.T_MIN = os.getenv('OXYGEN_T_MIN', 20)#20  # Setup your min temperature here.
+        self.DATABASE_URL = os.getenv('OXYGEN_DATABASE_URL', 'postgresql://user02eq12:E84YDXF2l5P4FkFG@157.230.69.113:5432/db02eq12')  # Setup your database here
 
     def __del__(self):
         if self._hub_connection != None:
@@ -78,12 +83,42 @@ class App:
 
     def save_event_to_database(self, timestamp, temperature):
         """Save sensor data into database."""
+
+        DB_CONNECTION_PARAMS = {
+            'dbname': 'db02eq12',
+            'user': 'user02eq12',
+            'password': 'E84YDXF2l5P4FkFG',
+            'host': '157.230.69.113',
+            'port': '5432',
+        }
+        table_name = 'hvac_events'
+        action = "None"
+        if float(temperature) >= float(self.T_MAX):
+            action = "TurnOnAc"
+        elif float(temperature) <= float(self.T_MIN):
+            action = "TurnOnHeater"
+
         try:
-            # To implement
-            pass
-        except requests.exceptions.RequestException as e:
-            # To implement
-            pass
+            # Connect to the PostgreSQL database
+            connection = psycopg2.connect(**DB_CONNECTION_PARAMS)
+            cursor = connection.cursor()
+
+            
+            # Insert HVAC event into the hvac_events table
+            cursor.execute(
+            f"INSERT INTO {table_name} (timestamp_event, temperature, event_type) VALUES (%s, %s, %s)",
+            (timestamp, temperature, action),
+            )
+
+            # Commit the changes and close the connection
+            connection.commit()
+            cursor.close()
+            connection.close()
+            
+        except psycopg2.Error as e:
+            print(f"Error saving HVAC event to the database: {e}")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
 
 
 if __name__ == "__main__":
