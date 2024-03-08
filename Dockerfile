@@ -1,24 +1,29 @@
-# Use a smaller base image
-FROM python:3.8-alpine
+# Use a minimal Python base image
+FROM python:3.8-slim
 
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy only the necessary files
+COPY src/ /app/src
+COPY Pipfile /app/
+COPY Pipfile.lock /app/
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install pipenv
+RUN pip install --no-cache-dir pipenv
 
-# Clean up unnecessary files and packages
-RUN rm -rf /var/cache/apk/*
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y libpq-dev gcc && \
+    rm -rf /var/lib/apt/lists/*
 
-# Define environment variable for SignalR hub URL
-ENV HOST_ENV="http://159.203.50.162"
-ENV HOST_TOKEN="3f0a57e541e13a3b6549"
-ENV OXYGEN_T_MAX=60
-ENV OXYGEN_T_MIN=20
-ENV OXYGEN_DATABASE_URL="postgresql://user02eq12:E84YDXF2l5P4FkFG@157.230.69.113:5432/db02eq12"
+# Install project dependencies
+RUN pipenv install --system
 
-# Run main.py when the container launches
-CMD ["python", "main.py"]
+# Install signalrcore separately // dont know why pipenv install doesnt install signalrcore even though it is specified in the pipfile.
+RUN pipenv install signalrcore
+
+
+
+# Run the application
+CMD ["pipenv", "run", "python", "src/main.py"]
