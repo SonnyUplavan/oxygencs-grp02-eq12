@@ -1,5 +1,10 @@
 #!/bin/bash
-#Add to .git/hooks
+# Add to .git/hooks
+
+# Change directory to the root of the Git repository
+cd "$(git rev-parse --show-toplevel)"
+echo "Current directory: $(pwd)"
+
 
 # Run Black to format Python files in src/ and test/
 black src/ test/
@@ -14,3 +19,16 @@ fi
 
 # Run Pylint on Python files in src/ and test/
 pylint --output-format=colorized src/ test/
+
+pipenv install
+# Run unittest
+pipenv run python -m unittest test.test
+
+# Capture the exit status
+unittest_exit_status=$?
+
+if [ $unittest_exit_status -ne 0 ]; then
+  echo "Unittest encountered an issue. Please review the error message and fix the problem before committing."
+  exit $unittest_exit_status
+fi
+
