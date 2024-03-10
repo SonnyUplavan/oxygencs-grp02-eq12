@@ -18,12 +18,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install project dependencies
-RUN pipenv install --system
-
-# Install signalrcore separately // dont know why pipenv install doesnt install signalrcore even though it is specified in the pipfile.
-RUN pipenv install signalrcore
-
-
+RUN pipenv install
 
 # Run the application
 CMD ["pipenv", "run", "python", "src/main.py"]
