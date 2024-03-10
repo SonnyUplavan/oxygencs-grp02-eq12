@@ -117,6 +117,7 @@ class App:
             
         except psycopg2.Error as e:
             print(f"Error saving HVAC event to the database: {e}")
+            raise
         except Exception as e:
             print(f"Unexpected error: {e}")
 
