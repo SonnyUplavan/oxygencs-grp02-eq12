@@ -1,7 +1,7 @@
 name: CI Pipeline
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -32,7 +32,6 @@ jobs:
       run: |
         pipenv run black src/ test/
 
-      
   build_docker:
     runs-on: ubuntu-latest
     needs: test  # Ensure that the 'test' job has completed successfully before running this job
@@ -43,4 +42,12 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t oxygenCS:latest .
+        docker build -t oxygencs:latest .
+
+    - name: Login to Docker Hub
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker push oxygencs:latest
