@@ -42,7 +42,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t oxygencs:latest .
+        docker build -t suplavan/oxygencs-grp02-eq12:latest .
 
     - name: Login to Docker Hub
       run: |
@@ -50,4 +50,4 @@ jobs:
 
     - name: Push Docker image to Docker Hub
       run: |
-        docker push oxygencs:latest
+        docker push suplavan/oxygencs-grp02-eq12:latest
