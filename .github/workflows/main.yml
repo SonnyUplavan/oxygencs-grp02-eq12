@@ -43,4 +43,4 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t oxygenCS:latest .
+        docker build -t oxygencs:latest .
