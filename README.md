@@ -10,6 +10,9 @@ This application uses `pipenv`, a tool that aims to bring the best of all packag
 
 - Python 3.8+
 - pipenv
+- psycopg2
+- pylint (optional, only if we use the pre-commit Hooks)
+- black  (optional, only if we use the pre-commit Hooks)
 
 ## Getting Started
 
@@ -18,6 +21,7 @@ Install the project's dependencies :
 ```bash
 pipenv install
 ```
+pip install psycopg2
 
 ## Setup
 

@@ -1,1 +1,8 @@
-## To implement
+#To install the hook | pre-commit install
+- repo: local
+  hooks:
+    - id: my-pre-commit-hook
+      name: My pre commit hook
+      entry: hooks/pre-commit
+      language: system
+
