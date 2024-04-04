@@ -17,14 +17,14 @@ spec:
       - name: oxygen-container
         image: suplavan/oxygencs-grp02-eq12:latest
         ports:
-        - containerPort: 8083
+        - containerPort: 8090
         resources:
           requests:
-            cpu: "500m"  # 0.5 CPU core
-            memory: "128Mi"  # 128 MB
+            cpu: "40m"  # 0.04 CPU core
+            memory: "64Mi"  # 54 MB
           limits:
-            cpu: "1000m"  # 1 CPU core
-            memory: "256Mi"  # 256 MB
+            cpu: "50m"  # 0.05 CPU core
+            memory: "128Mi"  # 128 MB
         envFrom:
         - configMapRef:
             name: my-app-config
