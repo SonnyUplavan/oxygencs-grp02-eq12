@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-config
+  namespace: grp02eq12-namespace
+data:
+  HOST_ENV: "http://159.203.50.162"
+  OXYGEN_T_MAX: "60"
+  OXYGEN_T_MIN: "20"
+  OXYGEN_DATABASE_URL: "postgresql://user02eq12:E84YDXF2l5P4FkFG@157.230.69.113:5432/db02eq12"
