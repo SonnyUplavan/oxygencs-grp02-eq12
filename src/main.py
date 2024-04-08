@@ -16,19 +16,33 @@ class App:
         self.TICKS = 10
 
         # To be configured by your team
-        self.HOST = os.getenv("HOST_ENV", 'http://159.203.50.162')#"http://159.203.50.162"  # Setup your host here
-        self.TOKEN = os.getenv('HOST_TOKEN', '3f0a57e541e13a3b6549')#"3f0a57e541e13a3b6549"  # Setup your token here
-        self.T_MAX = os.getenv('OXYGEN_T_MAX', 60)#60  # Setup your max temperature here
-        self.T_MIN = os.getenv('OXYGEN_T_MIN', 20)#20  # Setup your min temperature here.
-        self.DATABASE_URL = os.getenv('OXYGEN_DATABASE_URL', 'postgresql://user02eq12:E84YDXF2l5P4FkFG@157.230.69.113:5432/db02eq12')  # Setup your database here
+        self.HOST = os.getenv(
+            "HOST_ENV", "http://159.203.50.162"
+        )  # "http://159.203.50.162"  # Setup your host here
+        self.TOKEN = os.getenv(
+            "HOST_TOKEN", "3f0a57e541e13a3b6549"
+        )  # "3f0a57e541e13a3b6549"  # Setup your token here
+        self.T_MAX = os.getenv(
+            "OXYGEN_T_MAX", 60
+        )  # 60  # Setup your max temperature here
+        self.T_MIN = os.getenv(
+            "OXYGEN_T_MIN", 20
+        )  # 20  # Setup your min temperature here.
+        self.DATABASE_URL = os.getenv(
+            "OXYGEN_DATABASE_URL",
+            "postgresql://user02eq12:E84YDXF2l5P4FkFG@157.230.69.113:5432/db02eq12",
+        )  # Setup your database here
 
     def __del__(self):
-        if self._hub_connection != None:
+        if self._hub_connection is not None:
             self._hub_connection.stop()
+        if self._db_connection is not None:
+            self._db_connection.close()
 
     def start(self):
         """Start Oxygen CS."""
         self.setup_sensor_hub()
+        self.setup_database_connection()  # Connect to the database
         self._hub_connection.start()
         print("Press CTRL+C to exit.")
         while True:
@@ -81,17 +95,25 @@ class App:
         details = json.loads(r.text)
         print(details, flush=True)
 
+    def setup_database_connection(self):
+        """Connect to the PostgreSQL database."""
+        DB_CONNECTION_PARAMS = {
+            "dbname": "db02eq12",
+            "user": "user02eq12",
+            "password": "E84YDXF2l5P4FkFG",
+            "host": "157.230.69.113",
+            "port": "5432",
+        }
+        try:
+            self._db_connection = psycopg2.connect(**DB_CONNECTION_PARAMS)
+        except psycopg2.Error as e:
+            print(f"Error connecting to the database: {e}")
+            raise
+
     def save_event_to_database(self, timestamp, temperature):
         """Save sensor data into database."""
 
-        DB_CONNECTION_PARAMS = {
-            'dbname': 'db02eq12',
-            'user': 'user02eq12',
-            'password': 'E84YDXF2l5P4FkFG',
-            'host': '157.230.69.113',
-            'port': '5432',
-        }
-        table_name = 'hvac_events'
+        table_name = "hvac_events"
         action = "None"
         if float(temperature) >= float(self.T_MAX):
             action = "TurnOnAc"
@@ -99,22 +121,14 @@ class App:
             action = "TurnOnHeater"
 
         try:
-            # Connect to the PostgreSQL database
-            connection = psycopg2.connect(**DB_CONNECTION_PARAMS)
-            cursor = connection.cursor()
-
-            
-            # Insert HVAC event into the hvac_events table
-            cursor.execute(
-            f"INSERT INTO {table_name} (timestamp_event, temperature, event_type) VALUES (%s, %s, %s)",
-            (timestamp, temperature, action),
-            )
-
-            # Commit the changes and close the connection
-            connection.commit()
-            cursor.close()
-            connection.close()
-            
+            with self._db_connection.cursor() as cursor:
+                # Insert HVAC event into the hvac_events table
+                cursor.execute(
+                    f"INSERT INTO {table_name} (timestamp_event, temperature, event_type) VALUES (%s, %s, %s)",
+                    (timestamp, temperature, action),
+                )
+                # Commit the changes
+                self._db_connection.commit()
         except psycopg2.Error as e:
             print(f"Error saving HVAC event to the database: {e}")
             raise
