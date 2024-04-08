@@ -110,8 +110,11 @@ class App:
             print(f"Error connecting to the database: {e}")
             raise
 
+
     def save_event_to_database(self, timestamp, temperature):
         """Save sensor data into database."""
+        if self._db_connection is None:
+            raise ValueError("Database connection is not initialized.")
 
         table_name = "hvac_events"
         action = "None"
@@ -134,6 +137,9 @@ class App:
             raise
         except Exception as e:
             print(f"Unexpected error: {e}")
+            raise
+
+
 
 
 if __name__ == "__main__":
