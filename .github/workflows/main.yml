@@ -71,7 +71,7 @@ jobs:
 
     - name: Update Image in k8s deployment YAML
       run: |
-        sed -i 's|suplavan/oxygencs-grp02-eq12:latest|suplavan/oxygencs-grp02-eq12:${{ github.run_number }}|' ./src/k8s/deployment/deployment.yaml
+        sed -i 's|suplavan/oxygencs-grp02-eq12:latest|suplavan/oxygencs-grp02-eq12:${{ github.run_number }}|' ./k8s/deployment/oxygen-deployment.yaml
 
     
     - name: Deploy to Kubernetes
