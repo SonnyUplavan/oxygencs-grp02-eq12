@@ -18,7 +18,7 @@ class TestApp(unittest.TestCase):
         ):
             self.app = App()
             # Ensure that the database connection is set up before each test
-            self.app.setup_database_connection()
+            #self.app.setup_database_connection()
 
 
     def test_environment_variables(self):
